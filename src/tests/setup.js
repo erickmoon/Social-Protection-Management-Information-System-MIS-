@@ -1,20 +1,21 @@
-const { knex } = require("../config/database");
+require('dotenv').config({ path: '.env' });
+const db = require('../config/database');
 
 beforeAll(async () => {
   // Run migrations
-  await knex.migrate.latest();
+  await db.migrate.latest();
 });
 
 afterAll(async () => {
   // Clean up database
-  await knex.migrate.rollback(true);
-  await knex.destroy();
+  await db.migrate.rollback(true);
+  await db.destroy();
 });
 
 beforeEach(async () => {
   // Clean all tables before each test
-  await knex("household_members").del();
-  await knex("household_heads").del();
-  await knex("locations").del();
-  await knex("programs").del();
+  await db('household_members').del();
+  await db('household_heads').del();
+  await db('locations').del();
+  await db('programs').del();
 });
