@@ -84,17 +84,6 @@ mis-api/
 │   │   └── members.js
 │   ├── seeds/
 │   │   └── initial_data.js
-│   ├── tests/
-│   │   ├── unit/
-│   │   │   └── encryption.test.js
-│   │   ├── integration/
-│   │   │   ├── programs.test.js
-│   │   │   ├── locations.test.js
-│   │   │   ├── households.test.js
-│   │   │   └── members.test.js
-│   │   ├── helpers/
-│   │   │   └── testData.js
-│   │   └── setup.js
 │   ├── utils/
 │   │   └── encryption.js
 │   └── server.js
