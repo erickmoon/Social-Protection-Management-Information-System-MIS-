@@ -23,6 +23,12 @@ A Management Information System (MIS) API for tracking social protection program
 - [Rate Limiting](#i-rate-limiting)
 - [Security](#j-security)
 - [Development](#k-development)
+- [Testing](#l-testing)
+  - [Running Tests](#running-tests)
+  - [Test Structure](#test-structure)
+  - [Coverage Requirements](#coverage-requirements)
+  - [Test Environment](#test-environment)
+
 
 ## A. Features
 
@@ -55,45 +61,58 @@ A Management Information System (MIS) API for tracking social protection program
 ```
 mis-api/
 ├── src/
-│ ├── config/
-│ │ └── database.js
-│ ├── controllers/
-│ │ ├── householdController.js
-│ │ ├── locationController.js
-│ │ ├── memberController.js
-│ │ └── programController.js
-│ ├── middleware/
-│ │ ├── apiKey.js
-│ │ ├── errorHandler.js
-│ │ └── rateLimiter.js
-│ ├── migrations/
-│ │ ├── create_programs_table.js
-│ │ ├── create_locations_table.js
-│ │ ├── create_household_heads_table.js
-│ │ └── create_household_members_table.js
-│ ├── models/
-│ │ ├── Program.js
-│ │ ├── Location.js
-│ │ ├── HouseholdHead.js
-│ │ └── HouseholdMember.js
-│ ├── routes/
-│ │ ├── index.js
-│ │ ├── programs.js
-│ │ ├── locations.js
-│ │ ├── households.js
-│ │ └── members.js
-│ ├── seeds/
-│ │ └── initial_data.js
-│ └── utils/
-│ └── encryption.js
+│   ├── config/
+│   │   └── database.js
+│   ├── controllers/
+│   │   ├── householdController.js
+│   │   ├── locationController.js
+│   │   ├── memberController.js
+│   │   └── programController.js
+│   ├── middleware/
+│   │   ├── apiKey.js
+│   │   ├── errorHandler.js
+│   │   └── rateLimiter.js
+│   ├── migrations/
+│   │   ├── create_programs_table.js
+│   │   ├── create_locations_table.js
+│   │   ├── create_household_heads_table.js
+│   │   └── create_household_members_table.js
+│   ├── models/
+│   │   ├── Program.js
+│   │   ├── Location.js
+│   │   ├── HouseholdHead.js
+│   │   └── HouseholdMember.js
+│   ├── routes/
+│   │   ├── index.js
+│   │   ├── programs.js
+│   │   ├── locations.js
+│   │   ├── households.js
+│   │   └── members.js
+│   ├── seeds/
+│   │   └── initial_data.js
+│   ├── tests/
+│   │   ├── unit/
+│   │   │   └── encryption.test.js
+│   │   ├── integration/
+│   │   │   ├── programs.test.js
+│   │   │   ├── locations.test.js
+│   │   │   ├── households.test.js
+│   │   │   └── members.test.js
+│   │   ├── helpers/
+│   │   │   └── testData.js
+│   │   └── setup.js
+│   └── utils/
+│       └── encryption.js
 ├── .env
 ├── .gitignore
+├── .eslintrc.js
+├── .prettierrc
+├── jest.config.js
 ├── knexfile.js
 ├── package.json
 ├── README.md
 ├── server.js
 └── swagger.yaml
-
 ```
 
 ## E. Installation & Setup
@@ -346,3 +365,55 @@ npm run make:migration create_new_table
 # Create new seed
 npm run make:seeder new_seed
 ```
+
+## L. Testing
+
+The project includes a comprehensive test suite using Jest and Supertest.
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run tests in CI environment
+npm run test:ci
+```
+
+### Test Structure
+
+```
+src/tests/
+├── unit/               # Unit tests
+│   └── encryption.test.js
+├── integration/        # API endpoint tests
+│   ├── programs.test.js
+│   ├── locations.test.js
+│   ├── households.test.js
+│   └── members.test.js
+├── helpers/           # Test helpers and fixtures
+│   └── testData.js
+└── setup.js          # Test environment setup
+```
+
+### Coverage Requirements
+
+The project maintains a minimum of 80% test coverage:
+- Branches: 80%
+- Functions: 80%
+- Lines: 80%
+- Statements: 80%
+
+### Test Environment
+
+- Uses a separate test database
+- Automatic migration running
+- Data cleanup between tests
+- Mocked authentication
+- Fixture data helpers
