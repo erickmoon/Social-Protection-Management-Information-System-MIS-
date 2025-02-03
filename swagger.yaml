@@ -1,0 +1,199 @@
+openapi: 3.0.0
+info:
+  title: Social Protection MIS API
+  version: 1.0.0
+  description: API for managing social protection program beneficiaries
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Check API health
+      responses:
+        200:
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+
+  /programs:
+    get:
+      summary: Get all programs
+      responses:
+        200:
+          description: List of programs
+    post:
+      summary: Create a program
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                budget:
+                  type: number
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                is_active:
+                  type: boolean
+
+  /programs/{id}:
+    get:
+      summary: Get program by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Program details
+        404:
+          description: Program not found
+
+    put:
+      summary: Update program
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                budget:
+                  type: number
+
+    delete:
+      summary: Delete program
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+
+  /locations:
+    get:
+      summary: Get all locations
+      responses:
+        200:
+          description: List of locations
+    post:
+      summary: Create a location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                county:
+                  type: string
+                sub_county:
+                  type: string
+                location:
+                  type: string
+                sub_location:
+                  type: string
+                ward:
+                  type: string
+                latitude:
+                  type: number
+                longitude:
+                  type: number
+
+  /households:
+    get:
+      summary: Get all households
+      responses:
+        200:
+          description: List of households
+    post:
+      summary: Create a household
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                id_number:
+                  type: string
+                phone_number:
+                  type: string
+                gender:
+                  type: string
+                date_of_birth:
+                  type: string
+                  format: date
+                location_id:
+                  type: integer
+                program_id:
+                  type: integer
+
+  /members:
+    get:
+      summary: Get all household members
+      responses:
+        200:
+          description: List of household members
+    post:
+      summary: Create a household member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                age:
+                  type: integer
+                gender:
+                  type: string
+                relationship:
+                  type: string
+                household_head_id:
+                  type: integer
