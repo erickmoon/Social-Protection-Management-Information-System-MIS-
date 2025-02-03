@@ -348,23 +348,3 @@ npm run make:migration create_new_table
 # Create new seed
 npm run make:seeder new_seed
 ```
-
-## L. Testing
-
-The project includes a comprehensive test suite using Jest and Supertest.
-
-### Running Tests
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage report
-npm run test:coverage
-
-# Run tests in CI environment
-npm run test:ci
-```
