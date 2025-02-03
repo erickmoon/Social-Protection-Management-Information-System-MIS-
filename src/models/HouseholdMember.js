@@ -3,8 +3,10 @@ const db = require("../config/database");
 class HouseholdMember {
   static tableName = "household_members";
 
-  static async getAll() {
-    return db(this.tableName)
+  static async getAll(filters = {}) {
+    const { household_head_id, is_student } = filters;
+
+    let query = db(this.tableName)
       .select(
         "household_members.*",
         "household_heads.full_name as household_head_name"
@@ -13,8 +15,22 @@ class HouseholdMember {
         "household_heads",
         "household_members.household_head_id",
         "household_heads.id"
-      )
-      .orderBy("household_members.created_at", "desc");
+      );
+
+    // Apply household head filter if provided
+    if (household_head_id) {
+      query = query.where(
+        "household_members.household_head_id",
+        household_head_id
+      );
+    }
+
+    // Apply student status filter if provided
+    if (is_student !== undefined) {
+      query = query.where("household_members.is_student", is_student);
+    }
+
+    return query.orderBy("household_members.created_at", "desc");
   }
 
   static async getById(id) {

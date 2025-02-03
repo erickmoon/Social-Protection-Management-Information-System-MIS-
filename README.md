@@ -23,12 +23,6 @@ A Management Information System (MIS) API for tracking social protection program
 - [Rate Limiting](#i-rate-limiting)
 - [Security](#j-security)
 - [Development](#k-development)
-- [Testing](#l-testing)
-  - [Running Tests](#running-tests)
-  - [Test Structure](#test-structure)
-  - [Coverage Requirements](#coverage-requirements)
-  - [Test Environment](#test-environment)
-
 
 ## A. Features
 
@@ -101,8 +95,9 @@ mis-api/
 │   │   ├── helpers/
 │   │   │   └── testData.js
 │   │   └── setup.js
-│   └── utils/
-│       └── encryption.js
+│   ├── utils/
+│   │   └── encryption.js
+│   └── server.js
 ├── .env
 ├── .gitignore
 ├── .eslintrc.js
@@ -111,7 +106,6 @@ mis-api/
 ├── knexfile.js
 ├── package.json
 ├── README.md
-├── server.js
 └── swagger.yaml
 ```
 
@@ -385,35 +379,3 @@ npm run test:coverage
 # Run tests in CI environment
 npm run test:ci
 ```
-
-### Test Structure
-
-```
-src/tests/
-├── unit/               # Unit tests
-│   └── encryption.test.js
-├── integration/        # API endpoint tests
-│   ├── programs.test.js
-│   ├── locations.test.js
-│   ├── households.test.js
-│   └── members.test.js
-├── helpers/           # Test helpers and fixtures
-│   └── testData.js
-└── setup.js          # Test environment setup
-```
-
-### Coverage Requirements
-
-The project maintains a minimum of 80% test coverage:
-- Branches: 80%
-- Functions: 80%
-- Lines: 80%
-- Statements: 80%
-
-### Test Environment
-
-- Uses a separate test database
-- Automatic migration running
-- Data cleanup between tests
-- Mocked authentication
-- Fixture data helpers

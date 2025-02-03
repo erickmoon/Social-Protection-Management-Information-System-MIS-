@@ -3,8 +3,22 @@ const db = require("../config/database");
 class Location {
   static tableName = "locations";
 
-  static async getAll() {
-    return db(this.tableName).select("*").orderBy("county", "asc");
+  static async getAll(filters = {}) {
+    const { county, sub_county } = filters;
+
+    let query = db(this.tableName);
+
+    // Apply county filter if provided
+    if (county) {
+      query = query.where("county", "ilike", `%${county}%`);
+    }
+
+    // Apply sub-county filter if provided
+    if (sub_county) {
+      query = query.where("sub_county", "ilike", `%${sub_county}%`);
+    }
+
+    return query.orderBy("created_at", "desc");
   }
 
   static async getById(id) {

@@ -1,90 +1,274 @@
 openapi: 3.0.0
 info:
-  title: Social Protection MIS API
+  title: Social Protection Management Information System (MIS) API
   version: 1.0.0
-  description: API for managing social protection program beneficiaries
+  description: >
+    Comprehensive API for managing social protection program beneficiaries, 
+    including programs, locations, households, and household members.
+
+    ## Authentication
+    All endpoints require an API key passed in the `x-api-key` header.
 
 servers:
   - url: http://localhost:3000/api
     description: Development server
 
+# Comprehensive Tags
+tags:
+  - name: Programs
+    description: Manage and interact with social protection programs
+  - name: Locations
+    description: Geographical location management
+  - name: Households
+    description: Household registration and management
+  - name: Household Members
+    description: Individual household member tracking
+
+# Reusable Components
 components:
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
       in: header
       name: x-api-key
+      description: API key for secure access to the MIS system
 
+  schemas:
+    # Comprehensive Program Schema
+    Program:
+      type: object
+      required: [name, budget, start_date]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Unique identifier for the program
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          description: Official name of the social protection program
+        description:
+          type: string
+          maxLength: 500
+          description: Detailed description of the program's objectives and scope
+        budget:
+          type: number
+          minimum: 0
+          description: Total budget allocated to the program
+        start_date:
+          type: string
+          format: date
+          description: Official start date of the program
+        end_date:
+          type: string
+          format: date
+          description: Planned end date of the program
+        is_active:
+          type: boolean
+          default: true
+          description: Current operational status of the program
+
+    # Comprehensive Location Schema
+    Location:
+      type: object
+      required: [county, sub_county, location, sub_location]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Unique identifier for the location
+        county:
+          type: string
+          description: Administrative county name
+        sub_county:
+          type: string
+          description: Administrative sub-county name
+        location:
+          type: string
+          description: Specific location details
+        sub_location:
+          type: string
+          description: More granular location information
+        ward:
+          type: string
+          description: Electoral ward name
+        latitude:
+          type: number
+          description: Geographical latitude coordinates
+        longitude:
+          type: number
+          description: Geographical longitude coordinates
+
+    # Comprehensive Household Schema
+    Household:
+      type: object
+      required: [full_name, id_number, phone_number, location_id, program_id]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Unique identifier for the household
+        full_name:
+          type: string
+          description: Name of the household head
+        id_number:
+          type: string
+          description: Unique identification number
+        phone_number:
+          type: string
+          description: Contact phone number (will be encrypted)
+        gender:
+          type: string
+          enum: [Male, Female, Other]
+          description: Gender of the household head
+        date_of_birth:
+          type: string
+          format: date
+          description: Date of birth of the household head
+        location_id:
+          type: integer
+          description: Reference to the household's location
+        program_id:
+          type: integer
+          description: Reference to the associated social protection program
+
+    # Comprehensive Household Member Schema
+    HouseholdMember:
+      type: object
+      required: [full_name, age, gender, relationship, household_head_id]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Unique identifier for the household member
+        full_name:
+          type: string
+          description: Full name of the household member
+        age:
+          type: integer
+          minimum: 0
+          description: Age of the household member
+        gender:
+          type: string
+          enum: [Male, Female, Other]
+          description: Gender of the household member
+        relationship:
+          type: string
+          description: Relationship to the household head
+        household_head_id:
+          type: integer
+          description: Unique identifier of the household head this member belongs to
+          example: 1
+        is_student:
+          type: boolean
+          description: Whether the member is currently a student
+
+  # Common Error Response
+  responses:
+    UnauthorizedError:
+      description: API key is missing or invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Unauthorized: Invalid or missing API key"
+    NotFoundError:
+      description: The requested resource was not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Resource not found"
+    ValidationError:
+      description: Input validation failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    field:
+                      type: string
+                    message:
+                      type: string
+
+# Global Security Requirement
 security:
   - ApiKeyAuth: []
 
+# Comprehensive Paths
 paths:
-  /health:
+  # Programs Endpoint Group
+  /programs:
     get:
-      summary: Check API health
+      summary: List all social protection programs
+      tags: [Programs]
       responses:
         200:
-          description: API is healthy
+          description: Successful retrieval of programs
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  timestamp:
-                    type: string
-
-  /programs:
-    get:
-      summary: Get all programs
-      responses:
-        200:
-          description: List of programs
+                type: array
+                items:
+                  $ref: "#/components/schemas/Program"
     post:
-      summary: Create a program
+      summary: Create a new social protection program
+      tags: [Programs]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                budget:
-                  type: number
-                start_date:
-                  type: string
-                  format: date
-                end_date:
-                  type: string
-                  format: date
-                is_active:
-                  type: boolean
+              $ref: "#/components/schemas/Program"
+      responses:
+        201:
+          description: Program successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        400:
+          $ref: "#/components/responses/ValidationError"
 
+  # Individual Program Endpoints
   /programs/{id}:
     get:
-      summary: Get program by ID
+      summary: Retrieve a specific program by ID
+      tags: [Programs]
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: integer
       responses:
         200:
-          description: Program details
+          description: Successful program retrieval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
         404:
-          description: Program not found
+          $ref: "#/components/responses/NotFoundError"
 
     put:
-      summary: Update program
+      summary: Update an existing program
+      tags: [Programs]
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: integer
@@ -93,107 +277,417 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                budget:
-                  type: number
+              $ref: "#/components/schemas/Program"
+      responses:
+        200:
+          description: Program successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        400:
+          $ref: "#/components/responses/ValidationError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
 
     delete:
-      summary: Delete program
+      summary: Delete a program
+      tags: [Programs]
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
           schema:
             type: integer
+      responses:
+        200:
+          description: Program successfully deleted
+        404:
+          $ref: "#/components/responses/NotFoundError"
 
+  # Locations Endpoint Group
   /locations:
     get:
-      summary: Get all locations
+      summary: List all locations
+      tags: [Locations]
+      parameters:
+        - name: county
+          in: query
+          schema:
+            type: string
+          description: Filter locations by county
+        - name: sub_county
+          in: query
+          schema:
+            type: string
+          description: Filter locations by sub-county
       responses:
         200:
-          description: List of locations
+          description: Successful retrieval of locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+
     post:
-      summary: Create a location
+      summary: Create a new location
+      tags: [Locations]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                county:
-                  type: string
-                sub_county:
-                  type: string
-                location:
-                  type: string
-                sub_location:
-                  type: string
-                ward:
-                  type: string
-                latitude:
-                  type: number
-                longitude:
-                  type: number
+              $ref: "#/components/schemas/Location"
+      responses:
+        201:
+          description: Location successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        400:
+          $ref: "#/components/responses/ValidationError"
 
+  # Individual Location Endpoints
+  /locations/{id}:
+    get:
+      summary: Retrieve a specific location by ID
+      tags: [Locations]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Successful location retrieval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+    put:
+      summary: Update an existing location
+      tags: [Locations]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Location"
+      responses:
+        200:
+          description: Location successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+        400:
+          $ref: "#/components/responses/ValidationError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+    delete:
+      summary: Delete a location
+      tags: [Locations]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Location successfully deleted
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+  # Households Endpoint Group
   /households:
     get:
-      summary: Get all households
+      summary: List all households
+      tags: [Households]
+      parameters:
+        - name: program_id
+          in: query
+          schema:
+            type: integer
+          description: >
+            Filter households by specific program ID. 
+            Returns only households associated with the given program.
+          example: 1
+        - name: location_id
+          in: query
+          schema:
+            type: integer
+          description: >
+            Filter households by specific location ID. 
+            Returns only households located in the given location.
+          example: 2
+        - name: county
+          in: query
+          schema:
+            type: string
+          description: >
+            Filter households by county name (case-insensitive, partial match).
+            Returns households in locations matching the given county.
+          example: "Nairobi"
+        - name: sub_county
+          in: query
+          schema:
+            type: string
+          description: >
+            Filter households by sub-county name (case-insensitive, partial match).
+            Returns households in locations matching the given sub-county.
+          example: "Kibra"
       responses:
         200:
-          description: List of households
-    post:
-      summary: Create a household
+          description: Successful retrieval of households
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Household"
+
+  # Individual Household Endpoints
+  /households/{id}:
+    get:
+      summary: Retrieve a specific household by ID
+      tags: [Households]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Successful household retrieval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Household"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+    put:
+      summary: Update household information
+      tags: [Households]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                full_name:
-                  type: string
-                id_number:
-                  type: string
-                phone_number:
-                  type: string
-                gender:
-                  type: string
-                date_of_birth:
-                  type: string
-                  format: date
-                location_id:
-                  type: integer
-                program_id:
-                  type: integer
+              $ref: "#/components/schemas/Household"
+      responses:
+        200:
+          description: Household successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Household"
+        400:
+          $ref: "#/components/responses/ValidationError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
 
+    delete:
+      summary: Delete a household
+      tags: [Households]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Household successfully deleted
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+  # Household Members Endpoint Group
   /members:
     get:
-      summary: Get all household members
+      summary: List all household members
+      tags: [Household Members]
+      parameters:
+        - name: household_head_id
+          in: query
+          schema:
+            type: integer
+          description: >
+            Filter members by specific household head ID.
+            Returns only members belonging to the specified household head.
+          example: 1
+        - name: is_student
+          in: query
+          schema:
+            type: boolean
+          description: >
+            Filter members by student status:
+            - `true`: Returns only students
+            - `false`: Returns only non-students
+          example: true
       responses:
         200:
-          description: List of household members
+          description: Successful retrieval of household members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HouseholdMember"
+              examples:
+                filteredByHouseholdHead:
+                  summary: Members filtered by household head
+                  value:
+                    - id: 1
+                      full_name: John Doe
+                      household_head_id: 1
+                      is_student: false
+                      age: 25
+                      gender: Male
+                      relationship: Son
+                filteredByStudentStatus:
+                  summary: Members filtered by student status
+                  value:
+                    - id: 2
+                      full_name: Jane Smith
+                      household_head_id: 2
+                      is_student: true
+                      age: 18
+                      gender: Female
+                      relationship: Daughter
+
     post:
-      summary: Create a household member
+      summary: Add a new household member
+      tags: [Household Members]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                full_name:
-                  type: string
-                age:
-                  type: integer
-                gender:
-                  type: string
-                relationship:
-                  type: string
-                household_head_id:
-                  type: integer
+              $ref: "#/components/schemas/HouseholdMember"
+            examples:
+              studentMember:
+                summary: Example of a student household member
+                value:
+                  full_name: "Emma Johnson"
+                  age: 20
+                  gender: "Female"
+                  relationship: "Daughter"
+                  household_head_id: 1
+                  is_student: true
+                  education_level: "College"
+
+              nonStudentMember:
+                summary: Example of a non-student household member
+                value:
+                  full_name: "Michael Brown"
+                  age: 35
+                  gender: "Male"
+                  relationship: "Son"
+                  household_head_id: 1
+                  is_student: false
+      responses:
+        201:
+          description: Household member successfully added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HouseholdMember"
+              example:
+                id: 3
+                full_name: "Emma Johnson"
+                age: 20
+                gender: "Female"
+                relationship: "Daughter"
+                household_head_id: 1
+                is_student: true
+                education_level: "College"
+
+        400:
+          description: Validation error or invalid input
+          $ref: "#/components/responses/ValidationError"
+
+  # Individual Household Member Endpoints
+  /members/{id}:
+    get:
+      summary: Retrieve a specific household member by ID
+      tags: [Household Members]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Successful household member retrieval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HouseholdMember"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+    put:
+      summary: Update household member information
+      tags: [Household Members]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HouseholdMember"
+      responses:
+        200:
+          description: Household member successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HouseholdMember"
+        400:
+          $ref: "#/components/responses/ValidationError"
+        404:
+          $ref: "#/components/responses/NotFoundError"
+
+    delete:
+      summary: Remove a household member
+      tags: [Household Members]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Household member successfully deleted
+        404:
+          $ref: "#/components/responses/NotFoundError"

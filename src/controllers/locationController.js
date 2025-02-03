@@ -2,9 +2,18 @@ const asyncHandler = require('express-async-handler');
 const Location = require('../models/Location');
 
 const getAll = asyncHandler(async (req, res) => {
-  const locations = await Location.getAll();
-  res.json(locations);
-});
+    const { county, sub_county } = req.query;
+  
+    // Prepare filters
+    const filters = {
+      county: county ? county.trim() : undefined,
+      sub_county: sub_county ? sub_county.trim() : undefined
+    };
+  
+    const locations = await Location.getAll(filters);
+    res.json(locations);
+  });
+  
 
 const getById = asyncHandler(async (req, res) => {
   const location = await Location.getById(req.params.id);

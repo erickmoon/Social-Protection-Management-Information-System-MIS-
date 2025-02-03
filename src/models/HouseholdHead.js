@@ -4,8 +4,10 @@ const { encrypt, decrypt } = require("../utils/encryption");
 class HouseholdHead {
   static tableName = "household_heads";
 
-  static async getAll() {
-    const heads = await db(this.tableName)
+  static async getAll(filters = {}) {
+    const { program_id, location_id } = filters;
+
+    let query = db(this.tableName)
       .select(
         "household_heads.*",
         "locations.county",
@@ -13,8 +15,19 @@ class HouseholdHead {
         "programs.name as program_name"
       )
       .leftJoin("locations", "household_heads.location_id", "locations.id")
-      .leftJoin("programs", "household_heads.program_id", "programs.id")
-      .orderBy("household_heads.created_at", "desc");
+      .leftJoin("programs", "household_heads.program_id", "programs.id");
+
+    // Apply program filter if provided
+    if (program_id) {
+      query = query.where("household_heads.program_id", program_id);
+    }
+
+    // Apply location filter if provided
+    if (location_id) {
+      query = query.where("household_heads.location_id", location_id);
+    }
+
+    const heads = await query.orderBy("household_heads.created_at", "desc");
 
     return heads.map((head) => ({
       ...head,

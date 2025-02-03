@@ -2,7 +2,15 @@ const asyncHandler = require("express-async-handler");
 const HouseholdHead = require("../models/HouseholdHead");
 
 const getAll = asyncHandler(async (req, res) => {
-  const households = await HouseholdHead.getAll();
+  const { program_id, location_id } = req.query;
+
+  // Convert query parameters to appropriate types
+  const filters = {
+    program_id: program_id ? parseInt(program_id) : undefined,
+    location_id: location_id ? parseInt(location_id) : undefined
+  };
+
+  const households = await HouseholdHead.getAll(filters);
   res.json(households);
 });
 

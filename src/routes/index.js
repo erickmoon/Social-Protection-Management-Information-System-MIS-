@@ -11,9 +11,4 @@ router.use("/locations", locationRoutes);
 router.use("/households", householdRoutes);
 router.use("/members", memberRoutes);
 
-// API Health check
-router.get("/health", (req, res) => {
-  res.json({ status: "ok", timestamp: new Date() });
-});
-
 module.exports = router;
