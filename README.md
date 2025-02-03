@@ -22,7 +22,10 @@ A Management Information System (MIS) API for tracking social protection program
 - [Error Handling](#h-error-handling)
 - [Rate Limiting](#i-rate-limiting)
 - [Security](#j-security)
-- [Development](#k-development)
+- [Running](#k-running)
+  - [Installation Steps](#Installation-Steps)
+  - [Database Setup](#Database-Setup)
+  - [Running the Application](#Running-the-Application)
 
 ## A. Features
 
@@ -333,18 +336,63 @@ Error Response Format:
 - Rate limiting
 - Secure headers
 
-## K. Development
+## K. Running
+
+### Installation Steps
+
+1. **Clone the Repository**
 
 ```bash
-# Run tests
-npm test
+git clone https://github.com/erickmoon/Social-Protection-Management-Information-System-MIS-.git
+cd Social-Protection-Management-Information-System-MIS-
+```
 
-# Run linter
-npm run lint
+2. **Install Dependencies**
 
-# Create new migration
-npm run make:migration create_new_table
+```bash
+npm install
+```
 
-# Create new seed
-npm run make:seeder new_seed
+3. **Environment Configuration**
+   Create a `.env` file in the project root with the following variables:
+
+```bash
+PORT=3000
+NODE_ENV=development
+DATABASE_URL=postgresql://username:password@localhost:5432/mis_database
+API_KEY=your_secret_api_key
+ENCRYPTION_KEY=your_encryption_secret_key
+```
+
+### Database Setup
+
+4. **Run Migrations**
+
+```bash
+# Create database schema
+npm run migrate
+```
+
+5. **Seed Initial Data** (Optional)
+
+```bash
+# Populate database with initial test data
+npm run seed
+```
+
+### Running the Application
+
+6. **Development Mode**
+
+```bash
+# Start the development server with hot reloading
+npm run dev
+```
+
+7. **API Documentation**
+
+```bash
+# Access Swagger API documentation
+# After starting the server, visit:
+http://localhost:3000/api-docs
 ```
