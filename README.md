@@ -1,5 +1,3 @@
-Here's a detailed README.md for your project:
-
 # Social Protection MIS API
 
 A Management Information System (MIS) API for tracking social protection program beneficiaries. This API manages program information, locations, household heads, and household members with secure data handling.
